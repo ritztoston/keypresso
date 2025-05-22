@@ -74,9 +74,9 @@ function App() {
     }
 
     return (
-        <div className='bg-zinc-900 flex flex-col text-zinc-400 min-w-[300px]'>
+        <div className='bg-zinc-900 flex flex-col text-zinc-400 min-w-[300px] border border-black'>
             <div
-                className='w-full flex items-center border border-black'
+                className='w-full flex items-center border-b border-black'
                 style={{ WebkitAppRegion: 'drag' } as CSSProperties}
             >
                 <div className='flex-1 ml-2 text-sm flex gap-2 items-center'>
