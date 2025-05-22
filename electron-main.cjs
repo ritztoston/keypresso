@@ -14,8 +14,8 @@ function createTray(win) {
             click: () => {
                 app.isQuiting = true;
                 app.quit();
-            }
-        }
+            },
+        },
     ]);
     tray.setToolTip('Keypresso');
     tray.setContextMenu(contextMenu);
@@ -48,16 +48,24 @@ function createWindow() {
         win.loadFile(path.join(__dirname, 'dist', 'index.html'));
     }
 
-    win.webContents.on('did-finish-load', async () => {
-        const { width, height } = await win.webContents.executeJavaScript(`
-          (function() {
-            const el = document.querySelector('.bg-zinc-900');
-            const rect = el.getBoundingClientRect();
-            return { width: Math.ceil(rect.width), height: Math.ceil(rect.height) };
-          })();
-        `);
-        win.setContentSize(width, height);
-    });
+    // win.webContents.on('did-finish-load', async () => {
+    //     async function tryResize() {
+    //         const found = await win.webContents.executeJavaScript(`
+    //         (function() {
+    //           const el = document.querySelector('.bg-zinc-900');
+    //           if (!el) return null;
+    //           const rect = el.getBoundingClientRect();
+    //           return { width: Math.ceil(rect.width), height: Math.ceil(rect.height) };
+    //         })();
+    //       `);
+    //         if (found) {
+    //             win.setContentSize(found.width, found.height);
+    //         } else {
+    //             setTimeout(tryResize, 100);
+    //         }
+    //     }
+    //     tryResize();
+    // });
 
     win.on('close', (event) => {
         if (!app.isQuiting) {
@@ -73,9 +81,9 @@ function createWindow() {
 ipcMain.handle('start-shift', () => {
     if (!shiftInterval) {
         shiftInterval = setInterval(() => {
-            robot.keyTap('k');
-        // }, 5 * 60 * 1000);
-        }, 2000);
+            robot.keyTap('shift');
+        }, 5 * 60 * 1000);
+        // }, 2000);
     }
 });
 

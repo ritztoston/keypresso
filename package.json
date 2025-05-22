@@ -3,13 +3,19 @@
     "productName": "Keypresso",
     "description": "Your app description",
     "private": true,
-    "version": "0.0.0",
+    "version": "1.0.0",
     "type": "module",
     "main": "electron-main.cjs",
     "build": {
         "appId": "com.yourdomain.keypresso",
         "productName": "Keypresso",
-        "icon": "public/logo.ico"
+        "icon": "public/logo.ico",
+        "files": [
+            "dist/**/*",
+            "electron-main.cjs",
+            "preload.js",
+            "package.json"
+        ]
     },
     "scripts": {
         "dev": "vite",
