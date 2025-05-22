@@ -80,7 +80,7 @@ function App() {
                 style={{ WebkitAppRegion: 'drag' } as CSSProperties}
             >
                 <div className='flex-1 ml-2 text-sm flex gap-2 items-center'>
-                    <img src='/public/logo.png' className='size-6' />
+                    <img src='/public/logo.ico' className='size-6' />
                     <span>Keypresso</span>
                 </div>
                 <button

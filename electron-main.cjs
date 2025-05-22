@@ -27,12 +27,14 @@ function createTray(win) {
 function createWindow() {
     const win = new BrowserWindow({
         title: 'Keypresso',
+        icon: path.join(__dirname, 'public', 'logo.ico'),
         width: 300,
         height: 320,
         frame: false,
         transparent: true,
         hasShadow: false,
         resizable: false,
+        center: true,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
