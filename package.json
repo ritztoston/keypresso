@@ -15,6 +15,12 @@
             "electron-main.cjs",
             "preload.js",
             "package.json"
+        ],
+        "extraResources": [
+            {
+                "from": "public",
+                "to": "public"
+            }
         ]
     },
     "scripts": {

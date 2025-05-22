@@ -7,7 +7,11 @@ let tray = null;
 
 function createTray(win) {
     if (tray) return;
-    tray = new Tray(path.join(__dirname, 'public', 'logo.png'));
+    const isDev = process.env.NODE_ENV === 'development';
+    const trayIconPath = isDev
+        ? path.join(__dirname, 'public', 'logo.png')
+        : path.join(process.resourcesPath, 'public', 'logo.png');
+    tray = new Tray(trayIconPath);
     const contextMenu = Menu.buildFromTemplate([
         {
             label: 'Close',
