@@ -7,4 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   closeWindow: () => ipcRenderer.invoke('close-window'),
   getStartOnBoot: () => ipcRenderer.invoke('get-start-on-boot'),
   setStartOnBoot: (enabled) => ipcRenderer.invoke('set-start-on-boot', enabled),
+  quitApp: () => ipcRenderer.invoke('quit-app'),
+  getStartMinimized: () => ipcRenderer.invoke('get-start-minimized'),
+  setStartMinimized: (enabled) => ipcRenderer.invoke('set-start-minimized', enabled),
 });

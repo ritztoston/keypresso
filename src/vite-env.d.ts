@@ -7,6 +7,9 @@ interface ElectronAPI {
   closeWindow: () => void;
   getStartOnBoot: () => Promise<boolean>;
   setStartOnBoot: (enabled: boolean) => Promise<void>;
+  quitApp: () => void;
+  getStartMinimized: () => Promise<boolean>;
+  setStartMinimized: (enabled: boolean) => Promise<void>;
 }
 
 declare global {

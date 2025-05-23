@@ -1,7 +1,25 @@
 const { app, BrowserWindow, ipcMain, Tray, Menu } = require('electron');
 const path = require('path');
 const robot = require('robotjs');
+const fs = require('fs');
 
+const userDataPath = app.getPath('userData');
+const settingsPath = path.join(userDataPath, 'settings.json');
+
+function readSettings() {
+    try {
+        return JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    } catch {
+        return {};
+    }
+}
+
+function writeSettings(settings) {
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+}
+
+const WINDOW_WIDTH = 300;
+const WINDOW_HEIGHT = 291;
 let shiftInterval = null;
 let tray = null;
 
@@ -24,16 +42,18 @@ function createTray(win) {
     tray.setToolTip('Keypresso');
     tray.setContextMenu(contextMenu);
     tray.on('double-click', () => {
+        win.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         win.show();
     });
 }
 
 function createWindow() {
+    const settings = readSettings();
     const win = new BrowserWindow({
         title: 'Keypresso',
         icon: path.join(__dirname, 'public', 'logo.ico'),
-        width: 300,
-        height: 320,
+        width: WINDOW_WIDTH,
+        height: WINDOW_HEIGHT,
         frame: false,
         transparent: true,
         hasShadow: false,
@@ -50,6 +70,10 @@ function createWindow() {
         win.loadURL('http://localhost:5173');
     } else {
         win.loadFile(path.join(__dirname, 'dist', 'index.html'));
+    }
+
+    if (settings.startMinimized) {
+        win.hide();
     }
 
     // win.webContents.on('did-finish-load', async () => {
@@ -79,6 +103,15 @@ function createWindow() {
         return false;
     });
 
+    win.on('minimize', (event) => {
+        event.preventDefault();
+        win.hide();
+    });
+
+    win.on('show', () => {
+        win.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+    });
+
     createTray(win);
 }
 
@@ -100,7 +133,7 @@ ipcMain.handle('stop-shift', () => {
 
 ipcMain.handle('minimize-window', (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
-    if (win) win.minimize();
+    if (win) win.hide();
 });
 
 ipcMain.handle('close-window', (event) => {
@@ -114,6 +147,23 @@ ipcMain.handle('get-start-on-boot', () => {
 
 ipcMain.handle('set-start-on-boot', (event, enabled) => {
     app.setLoginItemSettings({ openAtLogin: enabled });
+});
+
+ipcMain.handle('quit-app', (event) => {
+    app.isQuiting = true;
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (win) win.close();
+});
+
+ipcMain.handle('get-start-minimized', () => {
+    const settings = readSettings();
+    return !!settings.startMinimized;
+});
+
+ipcMain.handle('set-start-minimized', (event, enabled) => {
+    const settings = readSettings();
+    settings.startMinimized = enabled;
+    writeSettings(settings);
 });
 
 app.whenReady().then(createWindow);
