@@ -18,6 +18,8 @@ function writeSettings(settings) {
     fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
 }
 
+const PRESSO_INTERVAL = 5 * 60 * 1000;
+const PRESSO_KEY = 'shift';
 const WINDOW_WIDTH = 300;
 const WINDOW_HEIGHT = 291;
 let shiftInterval = null;
@@ -132,8 +134,8 @@ function startShift() {
     if (!shiftInterval) {
         isShiftActive = true;
         shiftInterval = setInterval(() => {
-            robot.keyTap('k');
-        }, 2000);
+            robot.keyTap(PRESSO_KEY);
+        }, PRESSO_INTERVAL);
         updateTrayMenu();
     }
 }

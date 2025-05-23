@@ -110,7 +110,7 @@ function App() {
     }
 
     return (
-        <div className='bg-zinc-900 flex flex-col text-zinc-400 min-w-[300px] border border-black'>
+        <div className='bg-zinc-900 flex flex-col text-white min-w-[300px] border border-black'>
             <div
                 className='w-full flex items-center border-b border-black'
                 style={{ WebkitAppRegion: 'drag' } as CSSProperties}
@@ -139,12 +139,13 @@ function App() {
                     <h5 className='font-semibold uppercase'>Settings</h5>
                     <button
                         onClick={handleToggleStartOnBoot}
-                        className={`flex items-center border rounded-md border-black p-2 w-full gap-2 ${
-                            startOnBoot
-                                ? 'bg-blue-500 text-white'
-                                : 'bg-zinc-900'
-                        }`}
+                        className={`flex items-center border rounded-md border-black p-2 w-full gap-2 bg-zinc-900`}
                     >
+                        <span
+                            className={`size-5 rounded-md border-2 border-gray-200 ${
+                                startOnBoot ? 'bg-blue-600' : 'bg-zinc-900'
+                            }`}
+                        />
                         <span className='text-sm'>Start On Boot</span>
                     </button>
                     <button
@@ -153,11 +154,18 @@ function App() {
                         className={`flex items-center border rounded-md border-black p-2 w-full gap-2 ${
                             !startOnBoot
                                 ? 'bg-zinc-700 text-zinc-400 cursor-not-allowed'
-                                : startMinimized
-                                ? 'bg-blue-500 text-white'
-                                : 'bg-zinc-900 text-white'
+                                : 'bg-zinc-900'
                         }`}
                     >
+                        <span
+                            className={`size-5 rounded-md border-2 border-gray-200 ${
+                                !startOnBoot
+                                    ? 'bg-zinc-700'
+                                    : startMinimized
+                                    ? 'bg-blue-600'
+                                    : 'bg-zinc-900'
+                            }`}
+                        />
                         <span className='text-sm'>Start Minimized</span>
                     </button>
                 </div>
