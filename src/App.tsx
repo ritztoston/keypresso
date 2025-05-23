@@ -127,7 +127,7 @@ function App() {
                         onClick={handleToggleStartOnBoot}
                         className={`flex items-center border rounded-md border-black p-2 w-full gap-2 ${
                             startOnBoot
-                                ? 'bg-blue-500 text-white'
+                                ? 'bg-blue-600 text-white'
                                 : 'bg-zinc-900'
                         }`}
                     >
@@ -140,7 +140,7 @@ function App() {
                             !startOnBoot
                                 ? 'bg-zinc-700 text-zinc-400 cursor-not-allowed'
                                 : startMinimized
-                                ? 'bg-blue-500 text-white'
+                                ? 'bg-blue-600 text-white'
                                 : 'bg-zinc-900 text-white'
                         }`}
                     >
