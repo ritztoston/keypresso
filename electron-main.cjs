@@ -6,11 +6,6 @@ const fs = require('fs');
 const userDataPath = app.getPath('userData');
 const settingsPath = path.join(userDataPath, 'settings.json');
 
-function isLaunchedAtStartup() {
-    // Check if the app was launched with the --hidden flag (Windows startup)
-    return process.argv.includes('--hidden') || process.argv.includes('--startup');
-}
-
 function readSettings() {
     try {
         return JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
@@ -27,46 +22,6 @@ const WINDOW_WIDTH = 300;
 const WINDOW_HEIGHT = 291;
 let shiftInterval = null;
 let tray = null;
-let isRunning = false;
-
-function updateTrayMenu() {
-    if (!tray) return;
-    const contextMenu = Menu.buildFromTemplate([
-        {
-            label: isRunning ? 'Stop' : 'Start',
-            click: () => {
-                if (isRunning) {
-                    if (shiftInterval) {
-                        clearInterval(shiftInterval);
-                        shiftInterval = null;
-                    }
-                    isRunning = false;
-                } else {
-                    if (!shiftInterval) {
-                        shiftInterval = setInterval(() => {
-                            robot.keyTap('shift');
-                        }, 5 * 60 * 1000);
-                    }
-                    isRunning = true;
-                }
-                updateTrayMenu();
-                // Notify renderer to update UI
-                const win = BrowserWindow.getAllWindows()[0];
-                if (win) {
-                    win.webContents.send('shift-state-updated', isRunning);
-                }
-            },
-        },
-        {
-            label: 'Close',
-            click: () => {
-                app.isQuiting = true;
-                app.quit();
-            },
-        },
-    ]);
-    tray.setContextMenu(contextMenu);
-}
 
 function createTray(win) {
     if (tray) return;
@@ -75,9 +30,18 @@ function createTray(win) {
         ? path.join(__dirname, 'public', 'logo.png')
         : path.join(process.resourcesPath, 'public', 'logo.png');
     tray = new Tray(trayIconPath);
+    const contextMenu = Menu.buildFromTemplate([
+        {
+            label: 'Close',
+            click: () => {
+                app.isQuiting = true;
+                app.quit();
+            },
+        },
+    ]);
     tray.setToolTip('Keypresso');
-    updateTrayMenu();
-    tray.on('double-click', () => {
+    tray.setContextMenu(contextMenu);
+    tray.on('click', () => {
         win.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         win.show();
     });
@@ -85,6 +49,7 @@ function createTray(win) {
 
 function createWindow() {
     const settings = readSettings();
+    const wasOpenedAtLogin = app.getLoginItemSettings().wasOpenedAtLogin;
     const win = new BrowserWindow({
         title: 'Keypresso',
         icon: path.join(__dirname, 'public', 'logo.ico'),
@@ -95,6 +60,7 @@ function createWindow() {
         hasShadow: false,
         resizable: false,
         center: true,
+        show: false,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
@@ -108,10 +74,12 @@ function createWindow() {
         win.loadFile(path.join(__dirname, 'dist', 'index.html'));
     }
 
-    // Start minimized if launched at startup and startMinimized is enabled
-    if (settings.startMinimized && isLaunchedAtStartup()) {
-        win.hide();
-    }
+    // Wait for the window to be ready before showing
+    win.once('ready-to-show', () => {
+        if (!settings.startMinimized || !wasOpenedAtLogin) {
+            win.show();
+        }
+    });
 
     // win.webContents.on('did-finish-load', async () => {
     //     async function tryResize() {
@@ -152,26 +120,20 @@ function createWindow() {
     createTray(win);
 }
 
-// Add listeners for tray-triggered start/stop
-ipcMain.on('start-shift-from-tray', (event) => {
+ipcMain.handle('start-shift', () => {
     if (!shiftInterval) {
         shiftInterval = setInterval(() => {
-            robot.keyTap('shift');
-        }, 5 * 60 * 1000);
-        isRunning = true;
-        updateTrayMenu();
-        // Notify renderer to update UI
-        event.sender.send('shift-state-updated', true);
+            // robot.keyTap('shift');
+            robot.keyTap('k');
+            // }, 5 * 60 * 1000);
+        }, 2000);
     }
 });
-ipcMain.on('stop-shift-from-tray', (event) => {
+
+ipcMain.handle('stop-shift', () => {
     if (shiftInterval) {
         clearInterval(shiftInterval);
         shiftInterval = null;
-        isRunning = false;
-        updateTrayMenu();
-        // Notify renderer to update UI
-        event.sender.send('shift-state-updated', false);
     }
 });
 
@@ -190,10 +152,7 @@ ipcMain.handle('get-start-on-boot', () => {
 });
 
 ipcMain.handle('set-start-on-boot', (event, enabled) => {
-    app.setLoginItemSettings({
-        openAtLogin: enabled,
-        args: enabled ? ['--startup'] : []
-    });
+    app.setLoginItemSettings({ openAtLogin: enabled });
     const settings = readSettings();
     if (!enabled) {
         settings.startMinimized = false;
@@ -231,3 +190,5 @@ app.on('activate', () => {
         createWindow();
     }
 });
+
+app.commandLine.appendSwitch('wm-window-animations-disabled');
