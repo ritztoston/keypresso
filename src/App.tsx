@@ -6,6 +6,17 @@ declare global {
     interface Window {
         electronAPI: ElectronAPI;
     }
+    interface ElectronAPI {
+        startShift: () => void;
+        stopShift: () => void;
+        minimizeWindow: () => void;
+        getStartOnBoot: () => Promise<boolean>;
+        setStartOnBoot: (enabled: boolean) => Promise<void>;
+        getStartMinimized: () => Promise<boolean>;
+        setStartMinimized: (enabled: boolean) => Promise<void>;
+        quitApp: () => void;
+        onShiftStateUpdated: (callback: (isRunning: boolean) => void) => void;
+    }
 }
 
 function App() {
@@ -37,6 +48,11 @@ function App() {
     useEffect(() => {
         window.electronAPI.getStartOnBoot().then(setStartOnBoot);
         window.electronAPI.getStartMinimized().then(setStartMinimized);
+        // Listen for tray state updates
+        window.electronAPI.onShiftStateUpdated((running: boolean) => {
+            setIsRunning(running);
+            if (!running) setElapsed(0);
+        });
     }, []);
 
     const toggleShiftPress = () => {

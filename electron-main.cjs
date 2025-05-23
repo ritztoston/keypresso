@@ -22,15 +22,36 @@ const WINDOW_WIDTH = 300;
 const WINDOW_HEIGHT = 291;
 let shiftInterval = null;
 let tray = null;
+let isRunning = false;
 
-function createTray(win) {
-    if (tray) return;
-    const isDev = process.env.NODE_ENV === 'development';
-    const trayIconPath = isDev
-        ? path.join(__dirname, 'public', 'logo.png')
-        : path.join(process.resourcesPath, 'public', 'logo.png');
-    tray = new Tray(trayIconPath);
+function updateTrayMenu() {
+    if (!tray) return;
     const contextMenu = Menu.buildFromTemplate([
+        {
+            label: isRunning ? 'Stop' : 'Start',
+            click: () => {
+                if (isRunning) {
+                    if (shiftInterval) {
+                        clearInterval(shiftInterval);
+                        shiftInterval = null;
+                    }
+                    isRunning = false;
+                } else {
+                    if (!shiftInterval) {
+                        shiftInterval = setInterval(() => {
+                            robot.keyTap('shift');
+                        }, 5 * 60 * 1000);
+                    }
+                    isRunning = true;
+                }
+                updateTrayMenu();
+                // Notify renderer to update UI
+                const win = BrowserWindow.getAllWindows()[0];
+                if (win) {
+                    win.webContents.send('shift-state-updated', isRunning);
+                }
+            },
+        },
         {
             label: 'Close',
             click: () => {
@@ -39,8 +60,18 @@ function createTray(win) {
             },
         },
     ]);
-    tray.setToolTip('Keypresso');
     tray.setContextMenu(contextMenu);
+}
+
+function createTray(win) {
+    if (tray) return;
+    const isDev = process.env.NODE_ENV === 'development';
+    const trayIconPath = isDev
+        ? path.join(__dirname, 'public', 'logo.png')
+        : path.join(process.resourcesPath, 'public', 'logo.png');
+    tray = new Tray(trayIconPath);
+    tray.setToolTip('Keypresso');
+    updateTrayMenu();
     tray.on('double-click', () => {
         win.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         win.show();
@@ -116,19 +147,26 @@ function createWindow() {
     createTray(win);
 }
 
-ipcMain.handle('start-shift', () => {
+// Add listeners for tray-triggered start/stop
+ipcMain.on('start-shift-from-tray', (event) => {
     if (!shiftInterval) {
         shiftInterval = setInterval(() => {
             robot.keyTap('shift');
         }, 5 * 60 * 1000);
-        // }, 2000);
+        isRunning = true;
+        updateTrayMenu();
+        // Notify renderer to update UI
+        event.sender.send('shift-state-updated', true);
     }
 });
-
-ipcMain.handle('stop-shift', () => {
+ipcMain.on('stop-shift-from-tray', (event) => {
     if (shiftInterval) {
         clearInterval(shiftInterval);
         shiftInterval = null;
+        isRunning = false;
+        updateTrayMenu();
+        // Notify renderer to update UI
+        event.sender.send('shift-state-updated', false);
     }
 });
 
