@@ -26,7 +26,7 @@ jobs:
 
       - name: Get version
         id: get_version
-        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+        run: echo "VERSION=$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
 
       - name: Create tag
         run: |
@@ -46,8 +46,9 @@ jobs:
         with:
           tag_name: v${{ steps.get_version.outputs.VERSION }}
           files: |
-            dist/**/*
-            dist_electron/**/*
+            dist_electron/*.exe
+            dist_electron/*.zip
+            dist_electron/*.msi
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
