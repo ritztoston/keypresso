@@ -6,6 +6,11 @@ const fs = require('fs');
 const userDataPath = app.getPath('userData');
 const settingsPath = path.join(userDataPath, 'settings.json');
 
+function isLaunchedAtStartup() {
+    // Check if the app was launched with the --hidden flag (Windows startup)
+    return process.argv.includes('--hidden') || process.argv.includes('--startup');
+}
+
 function readSettings() {
     try {
         return JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
@@ -80,7 +85,6 @@ function createTray(win) {
 
 function createWindow() {
     const settings = readSettings();
-    const wasOpenedAtLogin = app.getLoginItemSettings().wasOpenedAtLogin;
     const win = new BrowserWindow({
         title: 'Keypresso',
         icon: path.join(__dirname, 'public', 'logo.ico'),
@@ -104,7 +108,8 @@ function createWindow() {
         win.loadFile(path.join(__dirname, 'dist', 'index.html'));
     }
 
-    if (settings.startMinimized && wasOpenedAtLogin) {
+    // Start minimized if launched at startup and startMinimized is enabled
+    if (settings.startMinimized && isLaunchedAtStartup()) {
         win.hide();
     }
 
@@ -185,7 +190,10 @@ ipcMain.handle('get-start-on-boot', () => {
 });
 
 ipcMain.handle('set-start-on-boot', (event, enabled) => {
-    app.setLoginItemSettings({ openAtLogin: enabled });
+    app.setLoginItemSettings({
+        openAtLogin: enabled,
+        args: enabled ? ['--startup'] : []
+    });
     const settings = readSettings();
     if (!enabled) {
         settings.startMinimized = false;
