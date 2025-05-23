@@ -27,7 +27,8 @@ jobs:
       - name: Get version
         id: get_version
         run: |
-          echo "VERSION=$(node -e 'import pkg from \"./package.json\" assert { type: \"json\" }; console.log(pkg.version)')" >> $GITHUB_OUTPUT
+          VERSION=$(node -e 'import pkg from "./package.json" assert { type: "json" }; console.log(pkg.version)')
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Create tag
