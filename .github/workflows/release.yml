@@ -47,6 +47,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.get_version.outputs.VERSION }}
+          name: "Keypresso ${{ steps.get_version.outputs.VERSION }}"
           files: |
             dist_electron/*.exe
             dist_electron/*.zip
