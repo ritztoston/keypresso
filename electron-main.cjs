@@ -103,29 +103,12 @@ function createWindow() {
         win.loadFile(path.join(__dirname, 'dist', 'index.html'));
     }
 
-    // Start minimized if launched at startup and startMinimized is enabled
-    if (settings.startMinimized && isLaunchedAtStartup()) {
-        win.hide();
-    }
-
-    // win.webContents.on('did-finish-load', async () => {
-    //     async function tryResize() {
-    //         const found = await win.webContents.executeJavaScript(`
-    //         (function() {
-    //           const el = document.querySelector('.bg-zinc-900');
-    //           if (!el) return null;
-    //           const rect = el.getBoundingClientRect();
-    //           return { width: Math.ceil(rect.width), height: Math.ceil(rect.height) };
-    //         })();
-    //       `);
-    //         if (found) {
-    //             win.setContentSize(found.width, found.height);
-    //         } else {
-    //             setTimeout(tryResize, 100);
-    //         }
-    //     }
-    //     tryResize();
-    // });
+    // Wait for the window to be ready before showing
+    win.once('ready-to-show', () => {
+        if (!settings.startMinimized || !wasOpenedAtLogin) {
+            win.show();
+        }
+    });
 
     win.on('close', (event) => {
         if (!app.isQuiting) {
