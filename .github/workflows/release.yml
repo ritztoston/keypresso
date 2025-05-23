@@ -51,7 +51,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: List dist_electron contents
-        run: dir dist_electron
+        run: dir dist_electron || echo "dist_electron does not exist"
+
+      - name: List dist contents
+        run: dir dist || echo "dist does not exist"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -62,6 +65,9 @@ jobs:
             dist_electron/*.exe
             dist_electron/*.zip
             dist_electron/*.msi
+            dist/*.exe
+            dist/*.zip
+            dist/*.msi
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
