@@ -50,6 +50,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: List dist_electron contents
+        run: ls -lh dist_electron
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
