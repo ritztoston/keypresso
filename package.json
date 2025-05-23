@@ -6,6 +6,9 @@
     "version": "1.0.0",
     "type": "module",
     "main": "electron-main.cjs",
+    "author": {
+        "name": "Keypresso Team"
+    },
     "build": {
         "appId": "com.yourdomain.keypresso",
         "productName": "Keypresso",
@@ -21,7 +24,10 @@
                 "from": "public",
                 "to": "public"
             }
-        ]
+        ],
+        "publish": {
+            "provider": "github"
+        }
     },
     "scripts": {
         "dev": "vite",
@@ -30,7 +36,8 @@
         "preview": "vite preview",
         "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .\"",
         "rebuild": "electron-rebuild",
-        "electron:build": "vite build && electron-builder"
+        "electron:build": "vite build && electron-builder",
+        "postinstall": "electron-builder install-app-deps"
     },
     "dependencies": {
         "lucide-react": "^0.511.0",

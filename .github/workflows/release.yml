@@ -23,6 +23,8 @@ jobs:
 
       - name: Build
         run: yarn electron:build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Release
         id: create_release
