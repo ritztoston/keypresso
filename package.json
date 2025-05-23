@@ -3,7 +3,7 @@
     "productName": "Keypresso",
     "description": "Your app description",
     "private": true,
-    "version": "1.0.5",
+    "version": "1.0.6",
     "type": "module",
     "main": "electron-main.cjs",
     "author": {
@@ -26,7 +26,10 @@
             }
         ],
         "win": {
-            "target": ["nsis", "portable"]
+            "target": [
+                "nsis",
+                "portable"
+            ]
         }
     },
     "scripts": {
