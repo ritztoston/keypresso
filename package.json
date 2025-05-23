@@ -25,9 +25,6 @@
                 "to": "public"
             }
         ],
-        "publish": {
-            "provider": "github"
-        },
         "win": {
             "target": ["nsis", "portable"]
         }
