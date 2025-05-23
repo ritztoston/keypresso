@@ -17,6 +17,20 @@ function App() {
     const [showConfirmClose, setShowConfirmClose] = useState(false);
 
     useEffect(() => {
+        // Listen for shift status updates from system tray
+        window.electronAPI.onShiftStatusUpdate((isActive) => {
+            setIsRunning(isActive);
+            if (!isActive) {
+                setElapsed(0);
+            }
+        });
+
+        return () => {
+            // Cleanup will be handled by the preload script
+        };
+    }, []);
+
+    useEffect(() => {
         if (isRunning) {
             setElapsed(0);
             intervalRef.current = setInterval(() => {

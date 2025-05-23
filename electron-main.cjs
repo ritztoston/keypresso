@@ -22,15 +22,25 @@ const WINDOW_WIDTH = 300;
 const WINDOW_HEIGHT = 291;
 let shiftInterval = null;
 let tray = null;
+let isShiftActive = false;
+let mainWindow = null;
 
-function createTray(win) {
-    if (tray) return;
-    const isDev = process.env.NODE_ENV === 'development';
-    const trayIconPath = isDev
-        ? path.join(__dirname, 'public', 'logo.png')
-        : path.join(process.resourcesPath, 'public', 'logo.png');
-    tray = new Tray(trayIconPath);
+function updateTrayMenu() {
+    if (!tray || !mainWindow) return;
     const contextMenu = Menu.buildFromTemplate([
+        {
+            label: isShiftActive ? 'Stop' : 'Start',
+            click: () => {
+                if (isShiftActive) {
+                    mainWindow.webContents.send('shift-status-update', false);
+                    stopShift();
+                } else {
+                    mainWindow.webContents.send('shift-status-update', true);
+                    startShift();
+                }
+            },
+        },
+        { type: 'separator' },
         {
             label: 'Close',
             click: () => {
@@ -39,8 +49,18 @@ function createTray(win) {
             },
         },
     ]);
-    tray.setToolTip('Keypresso');
     tray.setContextMenu(contextMenu);
+    tray.setToolTip('Keypresso');
+}
+
+function createTray(win) {
+    if (tray) return;
+    const isDev = process.env.NODE_ENV === 'development';
+    const trayIconPath = isDev
+        ? path.join(__dirname, 'public', 'logo.png')
+        : path.join(process.resourcesPath, 'public', 'logo.png');
+    tray = new Tray(trayIconPath);
+    updateTrayMenu();
     tray.on('click', () => {
         win.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         win.show();
@@ -67,6 +87,7 @@ function createWindow() {
             preload: path.join(__dirname, 'preload.js'),
         },
     });
+    mainWindow = win;
 
     if (process.env.NODE_ENV === 'development') {
         win.loadURL('http://localhost:5173');
@@ -80,25 +101,6 @@ function createWindow() {
             win.show();
         }
     });
-
-    // win.webContents.on('did-finish-load', async () => {
-    //     async function tryResize() {
-    //         const found = await win.webContents.executeJavaScript(`
-    //         (function() {
-    //           const el = document.querySelector('.bg-zinc-900');
-    //           if (!el) return null;
-    //           const rect = el.getBoundingClientRect();
-    //           return { width: Math.ceil(rect.width), height: Math.ceil(rect.height) };
-    //         })();
-    //       `);
-    //         if (found) {
-    //             win.setContentSize(found.width, found.height);
-    //         } else {
-    //             setTimeout(tryResize, 100);
-    //         }
-    //     }
-    //     tryResize();
-    // });
 
     win.on('close', (event) => {
         if (!app.isQuiting) {
@@ -120,21 +122,31 @@ function createWindow() {
     createTray(win);
 }
 
-ipcMain.handle('start-shift', () => {
+function startShift() {
     if (!shiftInterval) {
+        isShiftActive = true;
         shiftInterval = setInterval(() => {
-            // robot.keyTap('shift');
             robot.keyTap('k');
-            // }, 5 * 60 * 1000);
         }, 2000);
+        updateTrayMenu();
     }
-});
+}
 
-ipcMain.handle('stop-shift', () => {
+function stopShift() {
     if (shiftInterval) {
         clearInterval(shiftInterval);
         shiftInterval = null;
+        isShiftActive = false;
+        updateTrayMenu();
     }
+}
+
+ipcMain.handle('start-shift', () => {
+    startShift();
+});
+
+ipcMain.handle('stop-shift', () => {
+    stopShift();
 });
 
 ipcMain.handle('minimize-window', (event) => {

@@ -11,4 +11,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getStartMinimized: () => ipcRenderer.invoke('get-start-minimized'),
   setStartMinimized: (enabled) => ipcRenderer.invoke('set-start-minimized', enabled),
   onShiftStateUpdated: (callback) => ipcRenderer.on('shift-state-updated', (event, isRunning) => callback(isRunning)),
+  onShiftStatusUpdate: (callback) => ipcRenderer.on('shift-status-update', (event, isActive) => callback(isActive)),
 });
