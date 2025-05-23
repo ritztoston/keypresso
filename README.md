@@ -6,6 +6,14 @@ It offers a clean UI, background operation with a system tray, and convenient st
 
 ---
 
+## 📦 Download
+
+Grab the latest release from the official GitHub page:
+
+➡️ [Download Keypresso](https://github.com/ritztoston/keypresso/releases)
+
+---
+
 ## ✨ Features
 
 - 🕒 **Anti-AFK Automation**: Presses the `Shift` key every 5 minutes when running.
