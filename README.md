@@ -12,7 +12,7 @@ It offers a clean UI, background operation with a system tray, and convenient st
 
 ---
 
-## 📦 Download
+### 📦 Download
 
 Grab the latest release from the official GitHub page:
 
@@ -20,7 +20,7 @@ Grab the latest release from the official GitHub page:
 
 ---
 
-## ✨ Features
+### ✨ Features
 
 -   🕒 **Anti-AFK Automation**: Presses the `Shift` key every 5 minutes when running.
 -   🛠️ **Settings Panel**:
@@ -34,7 +34,7 @@ Grab the latest release from the official GitHub page:
 
 ---
 
-## 🧰 Installation
+### 🧰 Installation
 
 1. Clone the repository:
 
@@ -63,7 +63,7 @@ Grab the latest release from the official GitHub page:
 
 ---
 
-## 🚀 Usage
+### 🚀 Usage
 
 Once launched:
 
@@ -79,7 +79,7 @@ Right-click the tray icon for quick actions:
 
 ---
 
-## 📁 Settings Storage
+### 📁 Settings Storage
 
 Keypresso saves settings to:
 
@@ -93,22 +93,13 @@ Managed settings include:
 
 ---
 
-## 🔒 Permissions
+### 🔒 Permissions
 
 Keypresso uses `robotjs` for key simulation. No user input is logged or monitored.
 
 ---
 
-## 🧪 Tech Stack
-
--   **Electron** for cross-platform desktop app support.
--   **robotjs** to simulate keypresses.
--   **Vite** + **React (frontend)** for modern UI.
--   **IPC (Electron)** for communication between renderer and main process.
-
----
-
-## 🛠 Development Notes
+### 🛠 Development Notes
 
 -   System tray icon loads from:
     -   Development: `public/logo.png`
@@ -118,12 +109,6 @@ Keypresso uses `robotjs` for key simulation. No user input is logged or monitore
 
 ---
 
-## 📜 License
+### 📜 License
 
 MIT License
-
----
-
-## 🙌 Credits
-
-Built with ❤️ using Electron, Vite, and a sprinkle of automation magic.
