@@ -1,15 +1,16 @@
-name: Release
+name: Bump Version, Build, and Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
-  release:
+  bump-build-release:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,11 +25,13 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Get version
-        id: get_version
-        run: |
-          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-        shell: bash
+      - name: Bump version and push tag
+        id: bump_version
+        uses: phips28/gh-action-bump-version@v10.1.1
+        with:
+          tag-prefix: "v"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
         run: yarn electron:build
@@ -39,8 +42,8 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.get_version.outputs.VERSION }}
-          name: "Keypresso ${{ steps.get_version.outputs.VERSION }}"
+          tag_name: ${{ steps.bump_version.outputs.newTag }}
+          name: "Keypresso ${{ steps.bump_version.outputs.newTag }}"
           files: |
             dist_electron/*.exe
             dist_electron/*.zip
