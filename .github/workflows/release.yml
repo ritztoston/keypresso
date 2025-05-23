@@ -2,8 +2,8 @@ name: Release
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
@@ -30,13 +30,6 @@ jobs:
           VERSION=$(node -e 'import pkg from "./package.json" assert { type: "json" }; console.log(pkg.version)')
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
         shell: bash
-
-      - name: Create tag
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git tag -a "v${{ steps.get_version.outputs.VERSION }}" -m "Release v${{ steps.get_version.outputs.VERSION }}"
-          git push origin "v${{ steps.get_version.outputs.VERSION }}"
 
       - name: Build
         run: yarn electron:build
