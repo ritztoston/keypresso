@@ -1,4 +1,4 @@
-# ⌨️ Keypresso
+# ⌨️ Keypresso - Never Go AFK Again
 
 **Keypresso** is a lightweight anti-AFK (Away From Keyboard) utility built with Electron. It simulates a `Shift` keypress every 5 minutes to keep your system or application active, perfect for long-running sessions where inactivity detection is a concern.
 
