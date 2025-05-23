@@ -40,9 +40,15 @@ function updateTrayMenu() {
                 }
             },
         },
+        {
+            label: 'Keypresso',
+            click: () => {
+                mainWindow.show();
+            },
+        },
         { type: 'separator' },
         {
-            label: 'Close',
+            label: 'Exit',
             click: () => {
                 app.isQuiting = true;
                 app.quit();
