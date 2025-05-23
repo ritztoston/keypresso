@@ -49,6 +49,7 @@ function createTray(win) {
 
 function createWindow() {
     const settings = readSettings();
+    const wasOpenedAtLogin = app.getLoginItemSettings().wasOpenedAtLogin;
     const win = new BrowserWindow({
         title: 'Keypresso',
         icon: path.join(__dirname, 'public', 'logo.ico'),
@@ -72,7 +73,7 @@ function createWindow() {
         win.loadFile(path.join(__dirname, 'dist', 'index.html'));
     }
 
-    if (settings.startMinimized) {
+    if (settings.startMinimized && wasOpenedAtLogin) {
         win.hide();
     }
 
@@ -147,6 +148,11 @@ ipcMain.handle('get-start-on-boot', () => {
 
 ipcMain.handle('set-start-on-boot', (event, enabled) => {
     app.setLoginItemSettings({ openAtLogin: enabled });
+    const settings = readSettings();
+    if (!enabled) {
+        settings.startMinimized = false;
+        writeSettings(settings);
+    }
 });
 
 ipcMain.handle('quit-app', (event) => {

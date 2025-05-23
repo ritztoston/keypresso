@@ -71,6 +71,10 @@ function App() {
         const newValue = !startOnBoot;
         await window.electronAPI.setStartOnBoot(newValue);
         setStartOnBoot(newValue);
+        if (!newValue) {
+            await window.electronAPI.setStartMinimized(false);
+            setStartMinimized(false);
+        }
     };
 
     const handleToggleStartMinimized = async () => {
