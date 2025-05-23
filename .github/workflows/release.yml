@@ -50,9 +50,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: List dist_electron contents
-        run: dir dist_electron || echo "dist_electron does not exist"
-
       - name: List dist contents
         run: dir dist || echo "dist does not exist"
 
@@ -62,9 +59,6 @@ jobs:
           tag_name: ${{ needs.bump-version.outputs.new_tag }}
           name: "Keypresso ${{ needs.bump-version.outputs.new_tag }}"
           files: |
-            dist_electron/*.exe
-            dist_electron/*.zip
-            dist_electron/*.msi
             dist/*.exe
             dist/*.zip
             dist/*.msi
