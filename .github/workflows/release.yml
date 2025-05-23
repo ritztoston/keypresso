@@ -10,21 +10,14 @@ permissions:
   packages: write
 
 jobs:
-  bump-build-release:
-    runs-on: windows-latest
-
+  bump-version:
+    runs-on: ubuntu-latest
+    outputs:
+      new_tag: ${{ steps.bump_version.outputs.newTag }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
 
       - name: Bump version and push tag
         id: bump_version
@@ -34,17 +27,34 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  build-and-release:
+    needs: bump-version
+    if: needs.bump-version.outputs.new_tag != ''
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.bump-version.outputs.new_tag }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
       - name: Build
         run: yarn electron:build
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Release
-        id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.bump_version.outputs.newTag }}
-          name: "Keypresso ${{ steps.bump_version.outputs.newTag }}"
+          tag_name: ${{ needs.bump-version.outputs.new_tag }}
+          name: "Keypresso ${{ needs.bump-version.outputs.new_tag }}"
           files: |
             dist_electron/*.exe
             dist_electron/*.zip
