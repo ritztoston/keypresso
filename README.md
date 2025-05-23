@@ -1,54 +1,114 @@
-# React + TypeScript + Vite
+# ⌨️ Keypresso
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Keypresso** is a lightweight anti-AFK (Away From Keyboard) utility built with Electron. It simulates a `Shift` keypress every 5 minutes to keep your system or application active, perfect for long-running sessions where inactivity detection is a concern.
 
-Currently, two official plugins are available:
+It offers a clean UI, background operation with a system tray, and convenient startup options.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## ✨ Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 🕒 **Anti-AFK Automation**: Presses the `Shift` key every 5 minutes when running.
+- 🛠️ **Settings Panel**:
+  - **Start on System Boot**.
+  - **Start Minimized** (only when opened at login).
+- 🧳 **System Tray Support**:
+  - Start/Stop automation from tray.
+  - Double-click tray icon to restore app.
+  - Close to tray or quit entirely.
+- 🪟 **Frameless and Minimal UI**: A sleek, transparent interface optimized for unobtrusive use.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+---
+
+## 🧰 Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/yourusername/keypresso.git
+   cd keypresso
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Run the app in development:
+
+   ```bash
+   npm run dev
+   ```
+
+4. Build for production:
+
+   ```bash
+   npm run build
+   ```
+
+---
+
+## 🚀 Usage
+
+Once launched:
+
+- Click **Start** to begin sending periodic `Shift` key presses.
+- Click **Stop** to pause the automation.
+- Configure **Start on Boot** and **Start Minimized** under the app's settings.
+- Close the window to minimize to system tray (does **not** quit the app).
+
+Right-click the tray icon for quick actions:
+- Toggle **Start / Stop**
+- **Quit** the app
+
+---
+
+## 📁 Settings Storage
+
+Keypresso saves settings to:
+
+```
+<userData>/settings.json
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Managed settings include:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `startMinimized`: Whether the app should start hidden on boot.
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+---
+
+## 🔒 Permissions
+
+Keypresso uses `robotjs` for key simulation. No user input is logged or monitored.
+
+---
+
+## 🧪 Tech Stack
+
+- **Electron** for cross-platform desktop app support.
+- **robotjs** to simulate keypresses.
+- **Vite** + **React (frontend)** for modern UI.
+- **IPC (Electron)** for communication between renderer and main process.
+
+---
+
+## 🛠 Development Notes
+
+- System tray icon loads from:
+  - Development: `public/logo.png`
+  - Production: `resources/public/logo.png`
+- Main app entry point: `main.js`
+- Renderer preload script: `preload.js`
+
+---
+
+## 📜 License
+
+MIT License
+
+---
+
+## 🙌 Credits
+
+Built with ❤️ using Electron, Vite, and a sprinkle of automation magic.
