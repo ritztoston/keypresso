@@ -5,11 +5,21 @@ const fs = require('fs');
 
 const userDataPath = app.getPath('userData');
 const settingsPath = path.join(userDataPath, 'settings.json');
+const logPath = path.join(userDataPath, 'app.log');
+
+function logToFile(message) {
+    const timestamp = new Date().toISOString();
+    const logMessage = `${timestamp}: ${message}\n`;
+    fs.appendFileSync(logPath, logMessage);
+}
 
 function readSettings() {
     try {
-        return JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
-    } catch {
+        const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+        // logToFile(`Loaded settings: ${JSON.stringify(settings)}`);
+        return settings;
+    } catch (error) {
+        // logToFile(`Error reading settings: ${error.message}`);
         return {};
     }
 }
@@ -77,7 +87,8 @@ function createTray(win) {
 
 function createWindow() {
     const settings = readSettings();
-    const wasOpenedAtLogin = app.getLoginItemSettings().wasOpenedAtLogin;
+    const isStartupLaunch = process.argv.includes('--hidden');
+    // logToFile(`App started with --hidden flag: ${isStartupLaunch}`);
     const win = new BrowserWindow({
         title: 'Keypresso',
         icon: path.join(__dirname, 'public', 'logo.ico'),
@@ -105,7 +116,8 @@ function createWindow() {
 
     // Wait for the window to be ready before showing
     win.once('ready-to-show', () => {
-        if (!settings.startMinimized || !wasOpenedAtLogin) {
+        // logToFile(`Window ready-to-show: startMinimized=${settings.startMinimized}, isStartupLaunch=${isStartupLaunch}`);
+        if (!(settings.startMinimized && isStartupLaunch)) {
             win.show();
         }
     });
@@ -172,12 +184,16 @@ ipcMain.handle('get-start-on-boot', () => {
 });
 
 ipcMain.handle('set-start-on-boot', (event, enabled) => {
-    app.setLoginItemSettings({ openAtLogin: enabled });
+    app.setLoginItemSettings({
+        openAtLogin: enabled,
+        args: enabled ? ['--hidden'] : [],
+    });
     const settings = readSettings();
     if (!enabled) {
         settings.startMinimized = false;
         writeSettings(settings);
     }
+    // logToFile(`Start on boot set to: ${enabled}`);
 });
 
 ipcMain.handle('quit-app', (event) => {
@@ -194,6 +210,7 @@ ipcMain.handle('get-start-minimized', () => {
 ipcMain.handle('set-start-minimized', (event, enabled) => {
     const settings = readSettings();
     settings.startMinimized = enabled;
+    // logToFile(`Saving startMinimized setting: ${enabled}`);
     writeSettings(settings);
 });
 
