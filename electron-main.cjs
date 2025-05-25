@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, Tray, Menu } = require('electron');
 const path = require('path');
 const robot = require('robotjs');
 const fs = require('fs');
+const { exec } = require('child_process');
 
 const userDataPath = app.getPath('userData');
 const settingsPath = path.join(userDataPath, 'settings.json');
@@ -161,6 +162,31 @@ function stopShift() {
     }
 }
 
+function removeFromStartup() {
+    const appName = 'Keypresso';
+    const command = `reg delete "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run" /v "${appName}" /f`;
+    exec(command, (error) => {
+        if (error) {
+            logToFile(`Error removing from startup: ${error.message}`);
+        } else {
+            logToFile('Successfully removed from startup');
+        }
+    });
+}
+
+function addToStartup() {
+    const appName = 'Keypresso';
+    const appPath = process.execPath;
+    const command = `reg add "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run" /v "${appName}" /t REG_SZ /d "${appPath} --hidden" /f`;
+    exec(command, (error) => {
+        if (error) {
+            logToFile(`Error adding to startup: ${error.message}`);
+        } else {
+            logToFile('Successfully added to startup');
+        }
+    });
+}
+
 ipcMain.handle('start-shift', () => {
     startShift();
 });
@@ -180,20 +206,28 @@ ipcMain.handle('close-window', (event) => {
 });
 
 ipcMain.handle('get-start-on-boot', () => {
-    return app.getLoginItemSettings().openAtLogin;
+    const settings = readSettings();
+    const loginSettings = app.getLoginItemSettings();
+    logToFile(`Getting start on boot - Settings: ${JSON.stringify(settings)}, Login settings: ${JSON.stringify(loginSettings)}`);
+    return settings.startOnBoot || false;
 });
 
 ipcMain.handle('set-start-on-boot', (event, enabled) => {
-    app.setLoginItemSettings({
-        openAtLogin: enabled,
-        args: enabled ? ['--hidden'] : [],
-    });
+    logToFile(`Setting start on boot to: ${enabled}`);
+
+    if (enabled) {
+        addToStartup();
+    } else {
+        removeFromStartup();
+    }
+
     const settings = readSettings();
+    settings.startOnBoot = enabled;
     if (!enabled) {
         settings.startMinimized = false;
-        writeSettings(settings);
     }
-    // logToFile(`Start on boot set to: ${enabled}`);
+    writeSettings(settings);
+    logToFile(`Settings saved: ${JSON.stringify(settings)}`);
 });
 
 ipcMain.handle('quit-app', (event) => {
