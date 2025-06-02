@@ -96,10 +96,19 @@ function createTray(win) {
     }
 
     updateTrayMenu();
-    tray.on('click', () => {
-        win.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-        win.show();
-    });
+
+    // Different click behavior for macOS
+    if (process.platform === 'darwin') {
+        tray.on('click', (event, bounds) => {
+            // Show context menu on click for macOS
+            tray.popUpContextMenu();
+        });
+    } else {
+        tray.on('click', () => {
+            win.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+            win.show();
+        });
+    }
 }
 
 function createWindow() {
