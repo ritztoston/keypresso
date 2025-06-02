@@ -75,10 +75,26 @@ function updateTrayMenu() {
 function createTray(win) {
     if (tray) return;
     const isDev = process.env.NODE_ENV === 'development';
-    const trayIconPath = isDev
-        ? path.join(__dirname, 'public', 'logo.png')
-        : path.join(process.resourcesPath, 'public', 'logo.png');
+    let trayIconPath;
+
+    if (process.platform === 'darwin') {
+        // For macOS, we'll use the regular logo but set it as template
+        trayIconPath = isDev
+            ? path.join(__dirname, 'public', 'logo.png')
+            : path.join(process.resourcesPath, 'public', 'logo.png');
+    } else {
+        trayIconPath = isDev
+            ? path.join(__dirname, 'public', 'logo.png')
+            : path.join(process.resourcesPath, 'public', 'logo.png');
+    }
+
     tray = new Tray(trayIconPath);
+
+    if (process.platform === 'darwin') {
+        // On macOS, set the image as template
+        tray.setTemplateImage(true);
+    }
+
     updateTrayMenu();
     tray.on('click', () => {
         win.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -163,28 +179,43 @@ function stopShift() {
 }
 
 function removeFromStartup() {
-    const appName = 'Keypresso';
-    const command = `reg delete "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run" /v "${appName}" /f`;
-    exec(command, (error) => {
-        if (error) {
-            logToFile(`Error removing from startup: ${error.message}`);
-        } else {
-            logToFile('Successfully removed from startup');
-        }
-    });
+    if (process.platform === 'win32') {
+        const appName = 'Keypresso';
+        const command = `reg delete "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run" /v "${appName}" /f`;
+        exec(command, (error) => {
+            if (error) {
+                logToFile(`Error removing from startup: ${error.message}`);
+            } else {
+                logToFile('Successfully removed from startup');
+            }
+        });
+    } else if (process.platform === 'darwin') {
+        app.setLoginItemSettings({
+            openAtLogin: false,
+            path: app.getPath('exe')
+        });
+    }
 }
 
 function addToStartup() {
-    const appName = 'Keypresso';
-    const appPath = process.execPath;
-    const command = `reg add "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run" /v "${appName}" /t REG_SZ /d "${appPath} --hidden" /f`;
-    exec(command, (error) => {
-        if (error) {
-            logToFile(`Error adding to startup: ${error.message}`);
-        } else {
-            logToFile('Successfully added to startup');
-        }
-    });
+    if (process.platform === 'win32') {
+        const appName = 'Keypresso';
+        const appPath = process.execPath;
+        const command = `reg add "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run" /v "${appName}" /t REG_SZ /d "${appPath} --hidden" /f`;
+        exec(command, (error) => {
+            if (error) {
+                logToFile(`Error adding to startup: ${error.message}`);
+            } else {
+                logToFile('Successfully added to startup');
+            }
+        });
+    } else if (process.platform === 'darwin') {
+        app.setLoginItemSettings({
+            openAtLogin: true,
+            path: app.getPath('exe'),
+            args: ['--hidden']
+        });
+    }
 }
 
 ipcMain.handle('start-shift', () => {
@@ -207,8 +238,9 @@ ipcMain.handle('close-window', (event) => {
 
 ipcMain.handle('get-start-on-boot', () => {
     const settings = readSettings();
-    const loginSettings = app.getLoginItemSettings();
-    logToFile(`Getting start on boot - Settings: ${JSON.stringify(settings)}, Login settings: ${JSON.stringify(loginSettings)}`);
+    if (process.platform === 'darwin') {
+        return app.getLoginItemSettings().openAtLogin;
+    }
     return settings.startOnBoot || false;
 });
 

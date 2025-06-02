@@ -31,6 +31,11 @@
                 "portable"
             ]
         },
+        "mac": {
+            "target": ["dmg"],
+            "category": "public.app-category.utilities",
+            "icon": "public/logo.icns"
+        },
         "directories": {
             "output": "dist"
         }
@@ -43,6 +48,8 @@
         "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .\"",
         "rebuild": "electron-rebuild",
         "electron:build": "vite build && electron-builder",
+        "electron:build:mac": "vite build && electron-builder --mac",
+        "create-mac-icon": "node create-mac-icon.js",
         "postinstall": "electron-builder install-app-deps"
     },
     "dependencies": {
