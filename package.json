@@ -49,7 +49,7 @@
         "rebuild": "electron-rebuild",
         "electron:build": "vite build && electron-builder",
         "electron:build:mac": "vite build && electron-builder --mac",
-        "create-mac-icon": "node create-mac-icon.js",
+        "create-mac-icon": "node create-mac-icon.cjs",
         "postinstall": "electron-builder install-app-deps"
     },
     "dependencies": {
