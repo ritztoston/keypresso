@@ -136,6 +136,9 @@ function createWindow() {
         // logToFile(`Window ready-to-show: startMinimized=${settings.startMinimized}, isStartupLaunch=${isStartupLaunch}`);
         if (!(settings.startMinimized && isStartupLaunch)) {
             win.show();
+        } else {
+            // Ensure window stays hidden on startup
+            win.hide();
         }
     });
 
