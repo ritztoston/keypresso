@@ -80,8 +80,8 @@ function createTray(win) {
     if (process.platform === 'darwin') {
         // For macOS, we'll use the regular logo but set it as template
         trayIconPath = isDev
-            ? path.join(__dirname, 'public', 'logo.png')
-            : path.join(process.resourcesPath, 'public', 'logo.png');
+            ? path.join(__dirname, 'public', 'icon-16x16.png')
+            : path.join(process.resourcesPath, 'public', 'icon-16x16.png');
     } else {
         trayIconPath = isDev
             ? path.join(__dirname, 'public', 'logo.png')
@@ -192,7 +192,7 @@ function removeFromStartup() {
     } else if (process.platform === 'darwin') {
         app.setLoginItemSettings({
             openAtLogin: false,
-            path: app.getPath('exe')
+            path: app.getPath('exe'),
         });
     }
 }
@@ -213,7 +213,7 @@ function addToStartup() {
         app.setLoginItemSettings({
             openAtLogin: true,
             path: app.getPath('exe'),
-            args: ['--hidden']
+            args: ['--hidden'],
         });
     }
 }
