@@ -92,7 +92,7 @@ function createTray(win) {
 
     if (process.platform === 'darwin') {
         // On macOS, set the image as template
-        tray.setTemplateImage(true);
+        tray.setImage(trayIconPath);
     }
 
     updateTrayMenu();
