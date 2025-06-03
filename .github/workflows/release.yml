@@ -65,3 +65,41 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-and-release-macos:
+    needs: bump-version
+    if: needs.bump-version.outputs.new_tag != ''
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.bump-version.outputs.new_tag }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build (macOS)
+        run: yarn electron:build:mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: List dist contents
+        run: ls -lh dist || echo "dist does not exist"
+
+      - name: Upload macOS Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.bump-version.outputs.new_tag }}
+          name: "Keypresso ${{ needs.bump-version.outputs.new_tag }}"
+          files: |
+            dist/*.dmg
+            dist/*.zip
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
