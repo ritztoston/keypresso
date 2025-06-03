@@ -64,6 +64,10 @@ function updateTrayMenu() {
             label: 'Exit',
             click: () => {
                 app.isQuiting = true;
+                if (tray) {
+                    tray.destroy();
+                    tray = null;
+                }
                 app.quit();
             },
         },
@@ -134,7 +138,7 @@ function createWindow() {
     // Wait for the window to be ready before showing
     win.once('ready-to-show', () => {
         // logToFile(`Window ready-to-show: startMinimized=${settings.startMinimized}, isStartupLaunch=${isStartupLaunch}`);
-        if (!(settings.startMinimized && isStartupLaunch)) {
+        if (!(settings.startMinimized && (isStartupLaunch || process.platform === 'darwin'))) {
             win.show();
         } else {
             // Ensure window stays hidden on startup
